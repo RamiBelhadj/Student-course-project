@@ -5,16 +5,60 @@ datasource db {
 
 // TODO: define fields and relations
 model User {
+  id  Int @default(autoincrement()) @id
+  email String @unique
+  name String 
+  social Json?
+  courses CourseEnrollment[]
+  TestResults TestResult[] @relation(name: "student")
+  TestGraded TestResult[] @relation(name: "graded")
 }
+
 
 // TODO: define fields and relations
 model Course {
+  id Int @default(autoincrement()) @id
+  name String 
+  courseDetails String? 
+  students CourseEnrollment[]
 }
 
 // TODO: define fields and relations
 model Test {
+  id Int @default(autoincrement()) @id
+  updatedAt DateTime
+  name String 
+  data DateTime
+  testResults TestResult[]
 }
 
 // TODO: define fields and relations
 model TestResult {
+  id Int @default(autoincrement()) @id
+  createdAt DateTime @default(now())
+  result Int
+  
+  gradedId Int 
+  gradedBy User @relation(name: "graded",fields: [gradedId], references: [id])
+  studentId Int 
+  student User @relation(name:"student",fields: [studentId], references: [id])
+  testId Int
+  test Test @relation(fields: [testId], references: [id])
+}
+
+
+model CourseEnrollment{
+  createdAt DateTime
+  role UserRole
+  userId Int 
+  user User @relation(fields: [userId], references: [id])
+  courseId Int 
+  course Course @relation(fields: [courseId], references: [id])
+  @@id([userId, courseId])
+  @@index([userId, courseId])
+}
+
+enum UserRole{
+  STUDENT
+  TEACHER
 }
